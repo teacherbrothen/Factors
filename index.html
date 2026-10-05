@@ -97,7 +97,7 @@
         <div class="max-w-6xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3 cursor-pointer" onclick="app.showHome()">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-teal-400 flex items-center justify-center font-black text-xl text-white shadow-lg shadow-cyan-500/30">
-                    <i class="fa-solid font-bold text-lg">x²</i>
+                    <span class="font-bold text-lg">x²</span>
                 </div>
                 <div>
                     <h1 class="font-extrabold text-lg sm:text-xl tracking-tight bg-gradient-to-r from-cyan-400 via-sky-300 to-teal-300 bg-clip-text text-transparent">
@@ -114,7 +114,7 @@
                     <span class="text-xs font-bold text-slate-200" id="globalXP">0 XP</span>
                 </div>
                 <button onclick="app.toggleCheatSheet()" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 hover:text-cyan-300 px-3 py-1.5 rounded-xl border border-cyan-500/30 text-xs font-semibold flex items-center gap-1.5 transition">
-                    <i class="fa-solid fa-book-open">i</i>
+                    <i class="fa-solid fa-book-open"></i>
                     <span class="hidden sm:inline">Cheat Sheet</span>
                 </button>
                 <button onclick="app.toggleMute()" id="muteBtn" class="text-slate-400 hover:text-white p-2 rounded-lg transition" title="Toggle Sound">
@@ -270,7 +270,7 @@
                             <button onclick="app.appendSymbol('(')" class="bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono px-3 py-1.5 rounded-lg text-sm border border-slate-700">(</button>
                             <button onclick="app.appendSymbol(')')" class="bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono px-3 py-1.5 rounded-lg text-sm border border-slate-700">)</button>
                             <button onclick="app.appendSymbol('x')" class="bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono px-3 py-1.5 rounded-lg text-sm border border-slate-700">x</button>
-                            <button onclick="app.appendSymbol('²')" class="bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono px-3 py-1.5 rounded-lg text-sm border border-slate-700">x²</button>
+                            <button onclick="app.appendSymbol('²')" class="bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono px-3 py-1.5 rounded-lg text-sm border border-slate-700">²</button>
                             <button onclick="app.appendSymbol('+')" class="bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono px-3 py-1.5 rounded-lg text-sm border border-slate-700">+</button>
                             <button onclick="app.appendSymbol('-')" class="bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono px-3 py-1.5 rounded-lg text-sm border border-slate-700">-</button>
                             <button onclick="app.clearInput()" class="bg-red-500/20 hover:bg-red-500/30 text-red-300 font-mono px-3 py-1.5 rounded-lg text-xs border border-red-500/30">Clear</button>
@@ -529,21 +529,21 @@
 
                 const t1 = `${this.formatTerm(c1, 'x', term1Exp)}`;
                 const sign = c2 >= 0 ? '+' : '-';
-                const t2 = `Math.abs(c2){term2Exp > 0 ? 'x' : ''}`;
+                const t2 = `${Math.abs(c2)}${term2Exp > 0 ? 'x' : ''}`;
 
                 const problemStr = `${t1} ${sign} ${t2}`;
 
-                const gcfStr = gcfVarExp > 0 ? `gcfCoefx`:`{gcfCoef}`;
+                const gcfStr = gcfVarExp > 0 ? `${gcfCoef}x` : `${gcfCoef}`;
                 const inner1 = this.formatTerm(r1, 'x', 1);
                 const inner2Sign = r2 >= 0 ? '+' : '-';
                 const innerStr = `${inner1} ${inner2Sign} ${Math.abs(r2)}`;
 
-                const correctAnswer = `gcfStr({innerStr.replace(/\s+/g, '')})`;
+                const correctAnswer = `${gcfStr}(${innerStr.replace(/\s+/g, '')})`;
 
                 // Generate distractors
-                const wrong1 = `gcfCoef({this.formatTerm(r1, 'x', term1Exp)} ${sign} ${Math.abs(c2)})`;
-                const wrong2 = `gcfStr({this.formatTerm(r1 + 1, 'x', 1)} ${sign} ${Math.abs(r2)})`;
-                const wrong3 = `gcfCoef*2({innerStr.replace(/\s+/g, '')})`;
+                const wrong1 = `${gcfCoef}(${this.formatTerm(r1, 'x', term1Exp)} ${sign} ${Math.abs(c2)})`;
+                const wrong2 = `${gcfStr}(${this.formatTerm(r1 + 1, 'x', 1)} ${sign} ${Math.abs(r2)})`;
+                const wrong3 = `${gcfCoef * 2}(${innerStr.replace(/\s+/g, '')})`;
 
                 return {
                     category: 'Greatest Common Factor (GCF)',
@@ -551,7 +551,7 @@
                     problem: problemStr,
                     answer: correctAnswer,
                     options: [correctAnswer, wrong1, wrong2, wrong3],
-                    hint: `Find the highest number and power of x that divides into both ${t1} and ${c2}. Factor out ${gcfStr}.`
+                    hint: `Find the highest number and power of x that divides into both ${t1} and ${t2}. Factor out ${gcfStr}.`
                 };
             }
 
@@ -570,11 +570,11 @@
                 const bTerm = b !== 0 ? ` ${bSign} ${Math.abs(b)}x` : '';
                 const cTerm = ` ${cSign} ${Math.abs(c)}`;
 
-                const problemStr = `x²bTerm{cTerm}`;
+                const problemStr = `x²${bTerm}${cTerm}`;
 
                 const f1 = `(x ${r1 >= 0 ? '+' : '-'} ${Math.abs(r1)})`;
                 const f2 = `(x ${r2 >= 0 ? '+' : '-'} ${Math.abs(r2)})`;
-                const correctAnswer = `f1{f2}`;
+                const correctAnswer = `${f1}${f2}`;
 
                 // Distractors
                 const wrong1 = `(x ${r1 >= 0 ? '-' : '+'} ${Math.abs(r1)})(x ${r2 >= 0 ? '-' : '+'} ${Math.abs(r2)})`;
@@ -614,7 +614,7 @@
 
                 const f1 = `(${m}x ${p >= 0 ? '+' : '-'} ${Math.abs(p)})`;
                 const f2 = `(x ${q >= 0 ? '+' : '-'} ${Math.abs(q)})`;
-                const correctAnswer = `f1{f2}`;
+                const correctAnswer = `${f1}${f2}`;
 
                 const ac = coeffA * coeffC;
                 const wrong1 = `(${m}x ${p >= 0 ? '-' : '+'} ${Math.abs(p)})(x ${q >= 0 ? '+' : '-'} ${Math.abs(q)})`;
@@ -642,11 +642,11 @@
                 const problemStr = `${term1} - ${term2}`;
 
                 const aStr = a === 1 ? 'x' : `${a}x`;
-                const correctAnswer = `(${aStr} - b)({aStr} + ${b})`;
+                const correctAnswer = `(${aStr} - ${b})(${aStr} + ${b})`;
 
                 const wrong1 = `(${aStr} - ${b})²`;
                 const wrong2 = `(${aStr} + ${b})²`;
-                const wrong3 = `(${a * a}x - b)({a * a}x + ${b})`;
+                const wrong3 = `(${a * a}x - ${b})(${a * a}x + ${b})`;
 
                 return {
                     category: 'Difference of Squares (a² - b²)',
@@ -654,7 +654,7 @@
                     problem: problemStr,
                     answer: correctAnswer,
                     options: [correctAnswer, wrong1, wrong2, wrong3],
-                    hint: `Use the pattern a² - b² = (a - b)(a + b). Take the square root of both terms: √(${term1}) = aStrand√({term2}) = ${b}.`
+                    hint: `Use the pattern a² - b² = (a - b)(a + b). Take the square root of both terms: √(${term1}) = ${aStr} and √(${term2}) = ${b}.`
                 };
             }
 
@@ -671,7 +671,7 @@
 
                     const correctAnswer = `${gcf}(x - ${b})(x + ${b})`;
                     const wrong1 = `${gcf}(x² - ${b * b})`;
-                    const wrong2 = `(${gcf}x - b)({gcf}x + ${b})`;
+                    const wrong2 = `(${gcf}x - ${b})(${gcf}x + ${b})`;
                     const wrong3 = `${gcf}(x - ${b})²`;
 
                     return {
@@ -680,7 +680,7 @@
                         problem: problemStr,
                         answer: correctAnswer,
                         options: [correctAnswer, wrong1, wrong2, wrong3],
-                        hint: `Step 1: Factor out GCF of ${gcf} -> ${gcf}(x² - ${b*b}). Step 2: Factor the Difference of Squares inside the brackets!`
+                        hint: `Step 1: Factor out GCF of ${gcf} -> ${gcf}(x² - ${b * b}). Step 2: Factor the Difference of Squares inside the brackets!`
                     };
                 } else {
                     const r1 = this.randInt(-4, 4);
@@ -701,10 +701,10 @@
 
                     const f1 = `(x ${r1 >= 0 ? '+' : '-'} ${Math.abs(r1)})`;
                     const f2 = `(x ${r2 >= 0 ? '+' : '-'} ${Math.abs(r2)})`;
-                    const correctAnswer = `gcf{f1}${f2}`;
+                    const correctAnswer = `${gcf}${f1}${f2}`;
 
                     const wrong1 = `${gcf}(x² ${b >= 0 ? '+' : '-'} ${Math.abs(b)}x ${c >= 0 ? '+' : '-'} ${Math.abs(c)})`;
-                    const wrong2 = `f1{f2}`;
+                    const wrong2 = `${f1}${f2}`;
                     const wrong3 = `${gcf}(x ${r1 >= 0 ? '-' : '+'} ${Math.abs(r1)})(x ${r2 >= 0 ? '-' : '+'} ${Math.abs(r2)})`;
 
                     return {
@@ -982,13 +982,15 @@
             isEquivalentFactor(userInput, correctAns) {
                 if (userInput === correctAns) return true;
 
-                // Extract binomial factors enclosed in parens
-                const extractFactors = (s) => {
-                    const matches = s.match(/[)]+|[^(]+/g) || [];
-                    return matches.sort().join('');
+                const canonicalize = (s) => {
+                    // Extract all (binomial) parenthesized factors
+                    const parens = (s.match(/\([^)]+\)/g) || []).sort();
+                    // Extract anything before or outside the brackets (e.g. GCF)
+                    const outer = s.replace(/\([^)]+\)/g, '');
+                    return outer + parens.join('');
                 };
 
-                return extractFactors(userInput) === extractFactors(correctAns);
+                return canonicalize(userInput) === canonicalize(correctAns);
             }
 
             handleCorrectAnswer() {
@@ -1175,4 +1177,3 @@
     </script>
 </body>
 </html>
-
