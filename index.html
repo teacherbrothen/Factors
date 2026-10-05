@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NL Math 1201: Factoring Quest</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f2b48 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .glass-card {
+            background: rgba(51, 65, 85, 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .glow-button {
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .glow-button:hover {
+            box-shadow: 0 0 25px rgba(14, 165, 233, 0.7);
+            transform: scale(1.02);
+        }
+
+        .math-expr {
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: 0.03em;
+        }
+
+        /* Keyframe animations */
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(14, 165, 233, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(14, 165, 233, 0.7); }
+        }
+
+        .pulse-glow {
+            animation: pulseGlow 2s infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(56, 189, 248, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(56, 189, 248, 0.6);
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-slate-100 overflow-x-hidden selection:bg-cyan-500 selection:text-white">
+
+    <!-- Top Navigation Header -->
+    <header class="w-full glass-panel sticky top-0 z-40 px-4 py-3 border-b border-slate-700/60">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="app.showHome()">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-teal-400 flex items-center justify-center font-black text-xl text-white shadow-lg shadow-cyan-500/30">
+                    <i class="fa-solid font-bold text-lg">x²</i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg sm:text-xl tracking-tight bg-gradient-to-r from-cyan-400 via-sky-300 to-teal-300 bg-clip-text text-transparent">
+                        NL Math 1201: Factoring Quest
+                    </h1>
+                    <p class="text-xs text-slate-400 hidden sm:block">Mastering High School Algebra in Newfoundland & Labrador</p>
+                </div>
+            </div>
+
+            <!-- Global Player Quick Stats -->
+            <div class="flex items-center gap-3 sm:gap-6">
+                <div class="flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700">
+                    <i class="fa-solid fa-bolt text-yellow-400 text-sm"></i>
+                    <span class="text-xs font-bold text-slate-200" id="globalXP">0 XP</span>
+                </div>
+                <button onclick="app.toggleCheatSheet()" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 hover:text-cyan-300 px-3 py-1.5 rounded-xl border border-cyan-500/30 text-xs font-semibold flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-book-open">i</i>
+                    <span class="hidden sm:inline">Cheat Sheet</span>
+                </button>
+                <button onclick="app.toggleMute()" id="muteBtn" class="text-slate-400 hover:text-white p-2 rounded-lg transition" title="Toggle Sound">
+                    <i class="fa-solid fa-volume-high text-base"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-6xl w-full mx-auto p-4 sm:p-6 flex flex-col justify-center">
+
+        <!-- SCREEN 1: LEVEL & MODE SELECTION HOME -->
+        <section id="homeScreen" class="space-y-8 animate-fadeIn">
+            <!-- Hero / Welcome Banner -->
+            <div class="glass-panel p-6 sm:p-8 rounded-3xl relative overflow-hidden text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6 border border-cyan-500/20">
+                <div class="space-y-3 z-10 max-w-2xl">
+                    <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                        🌊 Math 1201 Curriculum Aligned
+                    </span>
+                    <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+                        Conquer Factoring Polynomials!
+                    </h2>
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                        Practice Greatest Common Factors, Trinomial Decomposition, Difference of Squares, and Multi-Step Factoring with step-by-step NL curriculum hints.
+                    </p>
+                </div>
+                <div class="z-10 flex gap-3 flex-shrink-0">
+                    <button onclick="app.startArcadeMode('mixed')" class="glow-button bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-bold px-6 py-3.5 rounded-2xl flex items-center gap-2.5 text-sm sm:text-base">
+                        <i class="fa-solid fa-bolt text-lg"></i> Arcade Speed Run
+                    </button>
+                </div>
+            </div>
+
+            <!-- Topic / Unit Cards Grid -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group text-cyan-400"></i> Factoring Topics
+                    </h3>
+                    <span class="text-xs text-slate-400">Select a topic to start Practice Mode</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="topicGrid">
+                    <!-- Dynamic topic cards generated by JS -->
+                </div>
+            </div>
+
+            <!-- Stats & Progress Overview -->
+            <div class="glass-panel p-6 rounded-2xl space-y-4">
+                <h3 class="text-lg font-bold text-slate-200 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-teal-400"></i> Progress & Performance
+                </h3>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4" id="statsOverviewGrid">
+                    <div class="glass-card p-4 rounded-xl text-center">
+                        <p class="text-xs text-slate-400 font-medium">Problems Solved</p>
+                        <p class="text-2xl font-black text-cyan-400 mt-1" id="statSolved">0</p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl text-center">
+                        <p class="text-xs text-slate-400 font-medium">Accuracy Rate</p>
+                        <p class="text-2xl font-black text-teal-400 mt-1" id="statAccuracy">0%</p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl text-center">
+                        <p class="text-xs text-slate-400 font-medium">Arcade High Score</p>
+                        <p class="text-2xl font-black text-amber-400 mt-1" id="statHighScore">0</p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl text-center">
+                        <p class="text-xs text-slate-400 font-medium">Best Streak</p>
+                        <p class="text-2xl font-black text-purple-400 mt-1" id="statBestStreak">0 🔥</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 2: GAMEPLAY ARENA -->
+        <section id="gameScreen" class="hidden space-y-6 max-w-4xl mx-auto w-full animate-fadeIn">
+            <!-- Game Top Status Bar -->
+            <div class="glass-panel p-4 rounded-2xl flex items-center justify-between border-b border-slate-700">
+                <button onclick="app.showHome()" class="text-slate-400 hover:text-white text-xs sm:text-sm font-semibold flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-left"></i> Exit to Menu
+                </button>
+
+                <div class="flex items-center gap-4 sm:gap-6">
+                    <!-- Mode Tag -->
+                    <span id="modeBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                        Practice Mode
+                    </span>
+
+                    <!-- Streak Tracker -->
+                    <div class="flex items-center gap-1.5 text-amber-400 font-bold text-sm">
+                        <i class="fa-solid fa-fire text-lg"></i>
+                        <span id="streakCounter">0</span>
+                    </div>
+
+                    <!-- Arcade Timer & Lives (Hidden in Practice) -->
+                    <div id="arcadeStats" class="hidden flex items-center gap-4">
+                        <div class="flex items-center gap-1 text-red-400 font-bold text-sm" id="livesDisplay">
+                            <!-- Hearts rendered dynamically -->
+                        </div>
+                        <div class="flex items-center gap-1.5 text-cyan-400 font-bold text-sm bg-slate-800 px-3 py-1 rounded-lg border border-cyan-500/30">
+                            <i class="fa-regular fa-clock"></i>
+                            <span id="timerDisplay">45s</span>
+                        </div>
+                        <div class="text-amber-300 font-black text-sm">
+                            Score: <span id="arcadeScore">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Problem Card -->
+            <div class="glass-panel p-6 sm:p-10 rounded-3xl space-y-8 text-center relative overflow-hidden border border-slate-700/80 shadow-2xl">
+                <!-- Topic Header -->
+                <div class="flex items-center justify-between border-b border-slate-700/60 pb-4">
+                    <span id="problemCategory" class="text-xs font-bold tracking-wider uppercase text-cyan-400">
+                        Topic: GCF
+                    </span>
+                    <button onclick="app.triggerHint()" id="hintBtn" class="text-xs font-semibold bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5">
+                        <i class="fa-regular fa-lightbulb text-amber-400"></i> Get Hint (<span id="hintCount">3</span>)
+                    </button>
+                </div>
+
+                <!-- Mathematical Expression display -->
+                <div class="py-6 sm:py-8 bg-slate-900/60 rounded-2xl border border-slate-800 shadow-inner flex flex-col items-center justify-center">
+                    <p class="text-xs text-slate-400 font-medium mb-2 uppercase tracking-widest">Factor Completely:</p>
+                    <div id="problemDisplay" class="text-3xl sm:text-5xl font-extrabold text-white tracking-wide math-expr select-none">
+                        <!-- e.g., x² + 5x + 6 -->
+                    </div>
+                </div>
+
+                <!-- Input Methods Toggle / Answer Section -->
+                <div class="space-y-6">
+                    <!-- Standard MCQ Grid Mode -->
+                    <div id="mcqOptionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        <!-- Options generated dynamically -->
+                    </div>
+
+                    <!-- Interactive Typed / Builder Input Mode (Toggle option) -->
+                    <div id="typedInputArea" class="hidden space-y-4">
+                        <div class="flex flex-col sm:flex-row gap-3 items-center justify-center">
+                            <div class="relative w-full max-w-md">
+                                <input type="text" id="userInput" placeholder="e.g. 2x(x - 3)(x + 3) or (x+2)(x+3)"
+                                    class="w-full bg-slate-900 border-2 border-slate-700 focus:border-cyan-400 text-white font-mono text-lg rounded-2xl px-4 py-3 outline-none transition text-center"
+                                    autocomplete="off" spellcheck="false" />
+                            </div>
+                            <button onclick="app.submitTypedAnswer()" class="w-full sm:w-auto bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-6 py-3.5 rounded-2xl transition flex items-center justify-center gap-2">
+                                Submit <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Quick Symbol Pad for Easy Mobile/Tablet Input -->
+                        <div class="flex flex-wrap items-center justify-center gap-1.5 pt-2">
+                            <button onclick="app.appendSymbol('(')" class="bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono px-3 py-1.5 rounded-lg text-sm border border-slate-700">(</button>
+                            <button onclick="app.appendSymbol(')')" class="bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono px-3 py-1.5 rounded-lg text-sm border border-slate-700">)</button>
+                            <button onclick="app.appendSymbol('x')" class="bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono px-3 py-1.5 rounded-lg text-sm border border-slate-700">x</button>
+                            <button onclick="app.appendSymbol('²')" class="bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono px-3 py-1.5 rounded-lg text-sm border border-slate-700">x²</button>
+                            <button onclick="app.appendSymbol('+')" class="bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono px-3 py-1.5 rounded-lg text-sm border border-slate-700">+</button>
+                            <button onclick="app.appendSymbol('-')" class="bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono px-3 py-1.5 rounded-lg text-sm border border-slate-700">-</button>
+                            <button onclick="app.clearInput()" class="bg-red-500/20 hover:bg-red-500/30 text-red-300 font-mono px-3 py-1.5 rounded-lg text-xs border border-red-500/30">Clear</button>
+                        </div>
+
+                        <!-- Live Formatted Preview -->
+                        <div class="text-xs text-slate-400">
+                            Math Preview: <span id="mathPreview" class="font-bold text-cyan-300 text-sm italic">...</span>
+                        </div>
+                    </div>
+
+                    <!-- Input Mode Toggle Buttons -->
+                    <div class="flex justify-center items-center gap-4 text-xs text-slate-400 pt-2 border-t border-slate-800">
+                        <span class="font-medium">Input Style:</span>
+                        <button onclick="app.setInputMode('mcq')" id="btnModeMCQ" class="px-3 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30">Multiple Choice</button>
+                        <button onclick="app.setInputMode('typed')" id="btnModeTyped" class="px-3 py-1 rounded-lg bg-slate-800 text-slate-400 hover:text-white border border-slate-700">Free Typed</button>
+                    </div>
+                </div>
+
+                <!-- Feedback Banner -->
+                <div id="feedbackBanner" class="hidden p-4 rounded-2xl text-center space-y-2 animate-bounceIn">
+                    <p id="feedbackTitle" class="font-extrabold text-lg"></p>
+                    <p id="feedbackDetail" class="text-xs sm:text-sm text-slate-300 leading-relaxed"></p>
+                    <button onclick="app.nextProblem()" id="nextProblemBtn" class="mt-2 bg-slate-100 text-slate-950 font-bold px-6 py-2.5 rounded-xl text-xs hover:bg-white transition shadow-lg inline-flex items-center gap-2">
+                        Next Problem <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Hint Box Modal / Display area -->
+            <div id="hintBox" class="hidden glass-panel p-5 rounded-2xl border border-amber-500/30 bg-amber-950/20 text-amber-100 text-xs sm:text-sm space-y-2">
+                <div class="flex items-center gap-2 font-bold text-amber-400">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <span>Math 1201 Step-by-Step Hint:</span>
+                </div>
+                <p id="hintText" class="leading-relaxed text-slate-300"></p>
+            </div>
+        </section>
+
+        <!-- FORMULA & CHEAT SHEET MODAL -->
+        <div id="cheatSheetModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+            <div class="glass-panel w-full max-w-2xl max-h-[85vh] rounded-3xl p-6 sm:p-8 flex flex-col space-y-6 border border-cyan-500/30 overflow-y-auto">
+                <div class="flex items-center justify-between border-b border-slate-700 pb-4">
+                    <h3 class="text-xl font-extrabold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-book-bookmark text-cyan-400"></i> NL Math 1201 Factoring Guide
+                    </h3>
+                    <button onclick="app.toggleCheatSheet()" class="text-slate-400 hover:text-white p-1 text-lg">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="space-y-6 text-sm text-slate-300">
+                    <!-- Rule 1: Always check GCF -->
+                    <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+                        <h4 class="font-bold text-cyan-300 text-base flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs">1</span>
+                            Greatest Common Factor (GCF)
+                        </h4>
+                        <p class="text-xs leading-relaxed text-slate-300">
+                            <strong>Golden Rule:</strong> ALWAYS check for a GCF first before trying any other factoring method!
+                        </p>
+                        <p class="text-xs font-mono text-cyan-200 bg-slate-950 p-2.5 rounded-xl">
+                            6x² + 12x  ➔  GCF is 6x  ➔  6x(x + 2)
+                        </p>
+                    </div>
+
+                    <!-- Rule 2: Trinomials x^2 + bx + c -->
+                    <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+                        <h4 class="font-bold text-teal-300 text-base flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center text-xs">2</span>
+                            Trinomials (a = 1): x² + bx + c
+                        </h4>
+                        <p class="text-xs leading-relaxed text-slate-300">
+                            Find two numbers that <strong>multiply to c</strong> and <strong>add to b</strong>.
+                        </p>
+                        <p class="text-xs font-mono text-teal-200 bg-slate-950 p-2.5 rounded-xl">
+                            x² + 7x + 12  ➔  (x + 3)(x + 4)  [Since 3×4=12 and 3+4=7]
+                        </p>
+                    </div>
+
+                    <!-- Rule 3: Trinomials ax^2 + bx + c (Decomposition Method) -->
+                    <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+                        <h4 class="font-bold text-amber-300 text-base flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs">3</span>
+                            Trinomials (a > 1): Decomposition / AC Method
+                        </h4>
+                        <ol class="text-xs space-y-1 list-decimal list-inside text-slate-300">
+                            <li>Find two numbers that multiply to <strong>a × c</strong> and add to <strong>b</strong>.</li>
+                            <li>Break middle term <strong>bx</strong> into two parts using these numbers.</li>
+                            <li>Factor by grouping.</li>
+                        </ol>
+                        <p class="text-xs font-mono text-amber-200 bg-slate-950 p-2.5 rounded-xl">
+                            2x² + 7x + 3  ➔  a×c = 6. Numbers: 6 and 1.<br>
+                            = 2x² + 6x + 1x + 3  ➔  2x(x + 3) + 1(x + 3)  ➔  (2x + 1)(x + 3)
+                        </p>
+                    </div>
+
+                    <!-- Rule 4: Difference of Squares -->
+                    <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+                        <h4 class="font-bold text-purple-300 text-base flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center text-xs">4</span>
+                            Difference of Squares: a² - b²
+                        </h4>
+                        <p class="text-xs leading-relaxed text-slate-300">
+                            Pattern: Two perfect square terms with a minus sign between them.
+                        </p>
+                        <p class="text-xs font-mono text-purple-200 bg-slate-950 p-2.5 rounded-xl">
+                            a² - b² = (a - b)(a + b)<br>
+                            Example: 4x² - 25 = (2x - 5)(2x + 5)
+                        </p>
+                    </div>
+                </div>
+
+                <div class="pt-2 text-center">
+                    <button onclick="app.toggleCheatSheet()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-6 py-2.5 rounded-xl text-sm transition">
+                        Got It!
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full text-center py-4 text-xs text-slate-500 border-t border-slate-800/80 mt-auto">
+        Designed for Newfoundland & Labrador Math 1201 Students • Math Curriculum Practice
+    </footer>
+
+    <!-- MAIN JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        // Sound Effects Engine using Web Audio API
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) {
+                        this.ctx = new AudioContext();
+                    }
+                }
+            }
+
+            playCorrect() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.2); // G5
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.35);
+            }
+
+            playIncorrect() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, now);
+                osc.frequency.linearRampToValueAtTime(110, now + 0.25);
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.3);
+            }
+
+            playClick() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(400, now);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.05);
+            }
+        }
+
+        // Math Problem Generator specifically tailored for NL Math 1201 Factoring Unit
+        class FactoringGenerator {
+            // Helper to get random integer in range [min, max]
+            static randInt(min, max, excludeZero = true) {
+                let res = 0;
+                do {
+                    res = Math.floor(Math.random() * (max - min + 1)) + min;
+                } while (excludeZero && res === 0);
+                return res;
+            }
+
+            // Helper to format binomial/factors cleanly
+            static formatTerm(coef, varName = 'x', exp = 1) {
+                if (coef === 0) return '';
+                let res = '';
+                if (coef === 1 && exp > 0) res += '';
+                else if (coef === -1 && exp > 0) res += '-';
+                else res += coef;
+
+                if (exp === 1) res += varName;
+                else if (exp > 1) res += `${varName}²`;
+                return res;
+            }
+
+            // Generate GCF problem
+            static generateGCF() {
+                const gcfCoef = this.randInt(2, 6);
+                const hasVarInGCF = Math.random() > 0.3;
+                const gcfVarExp = hasVarInGCF ? 1 : 0;
+
+                const r1 = this.randInt(1, 5);
+                let r2 = this.randInt(1, 6);
+                while (Math.abs(r1) === Math.abs(r2)) r2 = this.randInt(1, 6);
+
+                // Polynomial: gcf * (r1*x + r2)
+                const c1 = gcfCoef * r1;
+                const c2 = gcfCoef * r2;
+
+                const term1Exp = gcfVarExp + 1;
+                const term2Exp = gcfVarExp;
+
+                const t1 = `${this.formatTerm(c1, 'x', term1Exp)}`;
+                const sign = c2 >= 0 ? '+' : '-';
+                const t2 = `Math.abs(c2){term2Exp > 0 ? 'x' : ''}`;
+
+                const problemStr = `${t1} ${sign} ${t2}`;
+
+                const gcfStr = gcfVarExp > 0 ? `gcfCoefx`:`{gcfCoef}`;
+                const inner1 = this.formatTerm(r1, 'x', 1);
+                const inner2Sign = r2 >= 0 ? '+' : '-';
+                const innerStr = `${inner1} ${inner2Sign} ${Math.abs(r2)}`;
+
+                const correctAnswer = `gcfStr({innerStr.replace(/\s+/g, '')})`;
+
+                // Generate distractors
+                const wrong1 = `gcfCoef({this.formatTerm(r1, 'x', term1Exp)} ${sign} ${Math.abs(c2)})`;
+                const wrong2 = `gcfStr({this.formatTerm(r1 + 1, 'x', 1)} ${sign} ${Math.abs(r2)})`;
+                const wrong3 = `gcfCoef*2({innerStr.replace(/\s+/g, '')})`;
+
+                return {
+                    category: 'Greatest Common Factor (GCF)',
+                    type: 'gcf',
+                    problem: problemStr,
+                    answer: correctAnswer,
+                    options: [correctAnswer, wrong1, wrong2, wrong3],
+                    hint: `Find the highest number and power of x that divides into both ${t1} and ${c2}. Factor out ${gcfStr}.`
+                };
+            }
+
+            // Generate Trinomial x^2 + bx + c
+            static generateTrinomialA1() {
+                const r1 = this.randInt(-7, 7);
+                let r2 = this.randInt(-7, 7);
+                while (r2 === 0 || r2 === -r1) r2 = this.randInt(-7, 7);
+
+                const b = r1 + r2;
+                const c = r1 * r2;
+
+                const bSign = b >= 0 ? '+' : '-';
+                const cSign = c >= 0 ? '+' : '-';
+
+                const bTerm = b !== 0 ? ` ${bSign} ${Math.abs(b)}x` : '';
+                const cTerm = ` ${cSign} ${Math.abs(c)}`;
+
+                const problemStr = `x²bTerm{cTerm}`;
+
+                const f1 = `(x ${r1 >= 0 ? '+' : '-'} ${Math.abs(r1)})`;
+                const f2 = `(x ${r2 >= 0 ? '+' : '-'} ${Math.abs(r2)})`;
+                const correctAnswer = `f1{f2}`;
+
+                // Distractors
+                const wrong1 = `(x ${r1 >= 0 ? '-' : '+'} ${Math.abs(r1)})(x ${r2 >= 0 ? '-' : '+'} ${Math.abs(r2)})`;
+                const wrong2 = `(x ${r1 >= 0 ? '+' : '-'} ${Math.abs(r1 + 1)})(x ${r2 >= 0 ? '+' : '-'} ${Math.abs(r2 - 1)})`;
+                const wrong3 = `(x ${b >= 0 ? '+' : '-'} ${Math.abs(b)})(x ${c >= 0 ? '+' : '-'} ${Math.abs(c)})`;
+
+                return {
+                    category: 'Trinomials (x² + bx + c)',
+                    type: 'trinomial_a1',
+                    problem: problemStr,
+                    answer: correctAnswer,
+                    options: [correctAnswer, wrong1, wrong2, wrong3],
+                    hint: `Find two numbers that multiply to ${c} and add to ${b}. Factors are ${r1} and ${r2}.`
+                };
+            }
+
+            // Generate Trinomial ax^2 + bx + c (a > 1)
+            static generateTrinomialA() {
+                const a = this.randInt(2, 4);
+                const r1 = this.randInt(-5, 5);
+                const r2 = this.randInt(-5, 5);
+
+                // (m*x + p)(n*x + q)
+                const m = a;
+                const p = r1;
+                const n = 1;
+                const q = r2;
+
+                const coeffA = m * n;
+                const coeffB = m * q + n * p;
+                const coeffC = p * q;
+
+                const bSign = coeffB >= 0 ? '+' : '-';
+                const cSign = coeffC >= 0 ? '+' : '-';
+
+                const problemStr = `${coeffA}x² ${bSign} ${Math.abs(coeffB)}x ${cSign} ${Math.abs(coeffC)}`;
+
+                const f1 = `(${m}x ${p >= 0 ? '+' : '-'} ${Math.abs(p)})`;
+                const f2 = `(x ${q >= 0 ? '+' : '-'} ${Math.abs(q)})`;
+                const correctAnswer = `f1{f2}`;
+
+                const ac = coeffA * coeffC;
+                const wrong1 = `(${m}x ${p >= 0 ? '-' : '+'} ${Math.abs(p)})(x ${q >= 0 ? '+' : '-'} ${Math.abs(q)})`;
+                const wrong2 = `(${m}x ${q >= 0 ? '+' : '-'} ${Math.abs(q)})(x ${p >= 0 ? '+' : '-'} ${Math.abs(p)})`;
+                const wrong3 = `(${coeffA}x ${p >= 0 ? '+' : '-'} ${Math.abs(p)})(x ${q >= 0 ? '+' : '-'} ${Math.abs(q)})`;
+
+                return {
+                    category: 'Trinomials (ax² + bx + c, a > 1)',
+                    type: 'trinomial_a',
+                    problem: problemStr,
+                    answer: correctAnswer,
+                    options: [correctAnswer, wrong1, wrong2, wrong3],
+                    hint: `NL 1201 Decomposition: Multiply a × c = ${ac}. Find two numbers that multiply to ${ac} and add to ${coeffB}.`
+                };
+            }
+
+            // Generate Difference of Squares
+            static generateDiffSquares() {
+                const a = this.randInt(1, 5);
+                const b = this.randInt(1, 7);
+
+                const term1 = a === 1 ? 'x²' : `${a * a}x²`;
+                const term2 = `${b * b}`;
+
+                const problemStr = `${term1} - ${term2}`;
+
+                const aStr = a === 1 ? 'x' : `${a}x`;
+                const correctAnswer = `(${aStr} - b)({aStr} + ${b})`;
+
+                const wrong1 = `(${aStr} - ${b})²`;
+                const wrong2 = `(${aStr} + ${b})²`;
+                const wrong3 = `(${a * a}x - b)({a * a}x + ${b})`;
+
+                return {
+                    category: 'Difference of Squares (a² - b²)',
+                    type: 'diff_squares',
+                    problem: problemStr,
+                    answer: correctAnswer,
+                    options: [correctAnswer, wrong1, wrong2, wrong3],
+                    hint: `Use the pattern a² - b² = (a - b)(a + b). Take the square root of both terms: √(${term1}) = aStrand√({term2}) = ${b}.`
+                };
+            }
+
+            // Generate Multi-Step Complete Factoring (GCF first then Trinomial or Diff of Squares)
+            static generateMultiStep() {
+                const gcf = this.randInt(2, 4);
+                const isDiffSq = Math.random() > 0.5;
+
+                if (isDiffSq) {
+                    const b = this.randInt(1, 5);
+                    const c1 = gcf;
+                    const c2 = gcf * b * b;
+                    const problemStr = `${c1}x² - ${c2}`;
+
+                    const correctAnswer = `${gcf}(x - ${b})(x + ${b})`;
+                    const wrong1 = `${gcf}(x² - ${b * b})`;
+                    const wrong2 = `(${gcf}x - b)({gcf}x + ${b})`;
+                    const wrong3 = `${gcf}(x - ${b})²`;
+
+                    return {
+                        category: 'Factoring Completely (Multi-Step)',
+                        type: 'multistep',
+                        problem: problemStr,
+                        answer: correctAnswer,
+                        options: [correctAnswer, wrong1, wrong2, wrong3],
+                        hint: `Step 1: Factor out GCF of ${gcf} -> ${gcf}(x² - ${b*b}). Step 2: Factor the Difference of Squares inside the brackets!`
+                    };
+                } else {
+                    const r1 = this.randInt(-4, 4);
+                    let r2 = this.randInt(-4, 4);
+                    while (r2 === 0 || r2 === -r1) r2 = this.randInt(-4, 4);
+
+                    const b = r1 + r2;
+                    const c = r1 * r2;
+
+                    const cA = gcf;
+                    const cB = gcf * b;
+                    const cC = gcf * c;
+
+                    const bSign = cB >= 0 ? '+' : '-';
+                    const cSign = cC >= 0 ? '+' : '-';
+
+                    const problemStr = `${cA}x² ${bSign} ${Math.abs(cB)}x ${cSign} ${Math.abs(cC)}`;
+
+                    const f1 = `(x ${r1 >= 0 ? '+' : '-'} ${Math.abs(r1)})`;
+                    const f2 = `(x ${r2 >= 0 ? '+' : '-'} ${Math.abs(r2)})`;
+                    const correctAnswer = `gcf{f1}${f2}`;
+
+                    const wrong1 = `${gcf}(x² ${b >= 0 ? '+' : '-'} ${Math.abs(b)}x ${c >= 0 ? '+' : '-'} ${Math.abs(c)})`;
+                    const wrong2 = `f1{f2}`;
+                    const wrong3 = `${gcf}(x ${r1 >= 0 ? '-' : '+'} ${Math.abs(r1)})(x ${r2 >= 0 ? '-' : '+'} ${Math.abs(r2)})`;
+
+                    return {
+                        category: 'Factoring Completely (Multi-Step)',
+                        type: 'multistep',
+                        problem: problemStr,
+                        answer: correctAnswer,
+                        options: [correctAnswer, wrong1, wrong2, wrong3],
+                        hint: `Step 1: Factor out GCF of ${gcf} first. Step 2: Factor the remaining simple trinomial inside.`
+                    };
+                }
+            }
+
+            // Generate problem based on selected category key
+            static createProblem(topicKey) {
+                switch (topicKey) {
+                    case 'gcf': return this.generateGCF();
+                    case 'trinomial_a1': return this.generateTrinomialA1();
+                    case 'trinomial_a': return this.generateTrinomialA();
+                    case 'diff_squares': return this.generateDiffSquares();
+                    case 'multistep': return this.generateMultiStep();
+                    case 'mixed':
+                    default: {
+                        const types = ['gcf', 'trinomial_a1', 'trinomial_a', 'diff_squares', 'multistep'];
+                        const picked = types[Math.floor(Math.random() * types.length)];
+                        return this.createProblem(picked);
+                    }
+                }
+            }
+        }
+
+        // Main App State and UI Controller
+        class App {
+            constructor() {
+                this.sound = new SoundEngine();
+                this.currentProblem = null;
+                this.currentTopic = 'mixed';
+                this.mode = 'practice'; // 'practice' or 'arcade'
+                this.inputMode = 'mcq'; // 'mcq' or 'typed'
+                
+                // User Stats
+                this.xp = parseInt(localStorage.getItem('nl_math_xp') || '0');
+                this.totalSolved = parseInt(localStorage.getItem('nl_math_solved') || '0');
+                this.totalAttempts = parseInt(localStorage.getItem('nl_math_attempts') || '0');
+                this.highScore = parseInt(localStorage.getItem('nl_math_highscore') || '0');
+                this.bestStreak = parseInt(localStorage.getItem('nl_math_beststreak') || '0');
+                this.currentStreak = 0;
+
+                // Arcade Mode State
+                this.arcadeTimer = 45;
+                this.timerInterval = null;
+                this.arcadeScore = 0;
+                this.lives = 3;
+                this.hintsLeft = 3;
+
+                // Topics Metadata
+                this.topics = [
+                    { id: 'gcf', title: '1. Greatest Common Factor (GCF)', desc: 'Pull out common numerical & variable factors', icon: 'fa-filter' },
+                    { id: 'trinomial_a1', title: '2. Trinomials (x² + bx + c)', desc: 'Factoring simple quadratic trinomials', icon: 'fa-square' },
+                    { id: 'trinomial_a', title: '3. Trinomials (ax² + bx + c)', desc: 'Decomposition / AC Method for a > 1', icon: 'fa-cubes' },
+                    { id: 'diff_squares', title: '4. Difference of Squares', desc: 'Factoring a² - b² into (a-b)(a+b)', icon: 'fa-arrows-split-up-and-left' },
+                    { id: 'multistep', title: '5. Factoring Completely', desc: 'Multi-step factoring (GCF first)', icon: 'fa-layer-group' },
+                    { id: 'mixed', title: '6. NL 1201 Mixed Review', desc: 'Randomized challenge from all topics', icon: 'fa-shuffle' }
+                ];
+
+                this.init();
+            }
+
+            init() {
+                this.renderTopicCards();
+                this.updateStatsUI();
+                this.setupEventListeners();
+            }
+
+            renderTopicCards() {
+                const grid = document.getElementById('topicGrid');
+                grid.innerHTML = '';
+
+                this.topics.forEach(t => {
+                    const card = document.createElement('div');
+                    card.className = 'glass-card p-5 rounded-2xl flex flex-col justify-between space-y-4 cursor-pointer group hover:border-cyan-400/50';
+                    card.onclick = () => this.startPracticeMode(t.id);
+
+                    card.innerHTML = `
+                        <div class="space-y-2">
+                            <div class="w-10 h-10 rounded-xl bg-slate-800 text-cyan-400 group-hover:bg-cyan-500 group-hover:text-slate-950 flex items-center justify-center transition">
+                                <i class="fa-solid ${t.icon} text-lg"></i>
+                            </div>
+                            <h4 class="font-bold text-white text-base group-hover:text-cyan-300 transition">${t.title}</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">${t.desc}</p>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-xs">
+                            <span class="text-slate-400 font-medium">Practice Mode</span>
+                            <span class="text-cyan-400 group-hover:translate-x-1 transition flex items-center gap-1 font-bold">
+                                Start <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </span>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+
+            updateStatsUI() {
+                document.getElementById('globalXP').innerText = `${this.xp} XP`;
+                document.getElementById('statSolved').innerText = this.totalSolved;
+                
+                const accuracy = this.totalAttempts > 0 
+                    ? Math.round((this.totalSolved / this.totalAttempts) * 100) 
+                    : 0;
+                document.getElementById('statAccuracy').innerText = `${accuracy}%`;
+                document.getElementById('statHighScore').innerText = this.highScore;
+                document.getElementById('statBestStreak').innerText = `${this.bestStreak} 🔥`;
+            }
+
+            setupEventListeners() {
+                const userInput = document.getElementById('userInput');
+                if (userInput) {
+                    userInput.addEventListener('input', (e) => {
+                        this.updateMathPreview(e.target.value);
+                    });
+                    userInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') this.submitTypedAnswer();
+                    });
+                }
+            }
+
+            showHome() {
+                this.sound.playClick();
+                this.clearIntervals();
+                document.getElementById('homeScreen').classList.remove('hidden');
+                document.getElementById('gameScreen').classList.add('hidden');
+                this.updateStatsUI();
+            }
+
+            startPracticeMode(topicId) {
+                this.sound.playClick();
+                this.mode = 'practice';
+                this.currentTopic = topicId;
+                this.hintsLeft = 3;
+
+                document.getElementById('homeScreen').classList.add('hidden');
+                document.getElementById('gameScreen').classList.remove('hidden');
+                document.getElementById('modeBadge').innerText = 'Practice Mode';
+                document.getElementById('modeBadge').className = 'text-xs font-bold px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30';
+                
+                document.getElementById('arcadeStats').classList.add('hidden');
+                this.currentStreak = 0;
+                this.updateStreakDisplay();
+                this.loadNextProblem();
+            }
+
+            startArcadeMode(topicId = 'mixed') {
+                this.sound.playClick();
+                this.mode = 'arcade';
+                this.currentTopic = topicId;
+                this.arcadeScore = 0;
+                this.lives = 3;
+                this.arcadeTimer = 45;
+                this.currentStreak = 0;
+                this.hintsLeft = 2;
+
+                document.getElementById('homeScreen').classList.add('hidden');
+                document.getElementById('gameScreen').classList.remove('hidden');
+                document.getElementById('modeBadge').innerText = 'Arcade Speed Run';
+                document.getElementById('modeBadge').className = 'text-xs font-bold px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30';
+
+                document.getElementById('arcadeStats').classList.remove('hidden');
+                document.getElementById('arcadeScore').innerText = '0';
+                
+                this.renderLives();
+                this.startTimer();
+                this.updateStreakDisplay();
+                this.loadNextProblem();
+            }
+
+            startTimer() {
+                this.clearIntervals();
+                document.getElementById('timerDisplay').innerText = `${this.arcadeTimer}s`;
+
+                this.timerInterval = setInterval(() => {
+                    this.arcadeTimer--;
+                    document.getElementById('timerDisplay').innerText = `${this.arcadeTimer}s`;
+
+                    if (this.arcadeTimer <= 0) {
+                        this.endArcadeMode('Time Expired!');
+                    }
+                }, 1000);
+            }
+
+            clearIntervals() {
+                if (this.timerInterval) clearInterval(this.timerInterval);
+            }
+
+            renderLives() {
+                const container = document.getElementById('livesDisplay');
+                container.innerHTML = '';
+                for (let i = 0; i < 3; i++) {
+                    const heart = document.createElement('i');
+                    heart.className = i < this.lives ? 'fa-solid fa-heart text-red-500' : 'fa-regular fa-heart text-slate-600';
+                    container.appendChild(heart);
+                }
+            }
+
+            loadNextProblem() {
+                // Reset UI elements
+                document.getElementById('feedbackBanner').classList.add('hidden');
+                document.getElementById('hintBox').classList.add('hidden');
+                document.getElementById('userInput').value = '';
+                document.getElementById('mathPreview').innerText = '...';
+                document.getElementById('hintCount').innerText = this.hintsLeft;
+
+                // Generate Problem
+                this.currentProblem = FactoringGenerator.createProblem(this.currentTopic);
+                
+                document.getElementById('problemCategory').innerText = `Topic: ${this.currentProblem.category}`;
+                document.getElementById('problemDisplay').innerText = this.currentProblem.problem;
+
+                // Render MCQ Options
+                this.renderMCQOptions();
+            }
+
+            // Shuffle array helper
+            shuffleArray(array) {
+                const arr = [...array];
+                for (let i = arr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+                return arr;
+            }
+
+            renderMCQOptions() {
+                const grid = document.getElementById('mcqOptionsGrid');
+                grid.innerHTML = '';
+
+                // Unique & shuffled options
+                const uniqueOpts = Array.from(new Set(this.currentProblem.options));
+                const shuffled = this.shuffleArray(uniqueOpts);
+
+                shuffled.forEach((opt) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'glass-card hover:bg-slate-800 text-white font-medium p-4 rounded-2xl border border-slate-700 text-base sm:text-lg transition flex items-center justify-center hover:border-cyan-400 active:scale-95 math-expr';
+                    btn.innerText = opt;
+                    btn.onclick = () => this.checkAnswer(opt);
+                    grid.appendChild(btn);
+                });
+            }
+
+            // Helper to normalize algebraic factor strings for easy comparison
+            normalizeFactorStr(str) {
+                if (!str) return '';
+                return str.replace(/\s+/g, '')
+                          .replace(/\*/g, '')
+                          .toLowerCase();
+            }
+
+            checkAnswer(selectedOption) {
+                this.totalAttempts++;
+                const normSelected = this.normalizeFactorStr(selectedOption);
+                const normCorrect = this.normalizeFactorStr(this.currentProblem.answer);
+
+                // Check factor order equivalence e.g. (x+2)(x+3) vs (x+3)(x+2)
+                const isCorrect = this.isEquivalentFactor(normSelected, normCorrect);
+
+                if (isCorrect) {
+                    this.handleCorrectAnswer();
+                } else {
+                    this.handleIncorrectAnswer(selectedOption);
+                }
+
+                this.saveProgress();
+            }
+
+            // Check factor order equivalence
+            isEquivalentFactor(userInput, correctAns) {
+                if (userInput === correctAns) return true;
+
+                // Extract binomial factors enclosed in parens
+                const extractFactors = (s) => {
+                    const matches = s.match(/[)]+|[^(]+/g) || [];
+                    return matches.sort().join('');
+                };
+
+                return extractFactors(userInput) === extractFactors(correctAns);
+            }
+
+            handleCorrectAnswer() {
+                this.sound.playCorrect();
+                this.totalSolved++;
+                this.currentStreak++;
+                
+                if (this.currentStreak > this.bestStreak) {
+                    this.bestStreak = this.currentStreak;
+                }
+
+                // Award XP
+                const xpGained = 15 + (this.currentStreak * 5);
+                this.xp += xpGained;
+
+                if (this.mode === 'arcade') {
+                    this.arcadeScore += 100 + (this.currentStreak * 20);
+                    this.arcadeTimer = Math.min(60, this.arcadeTimer + 5); // Time bonus
+                    document.getElementById('arcadeScore').innerText = this.arcadeScore;
+                }
+
+                // Trigger confetti
+                confetti({
+                    particleCount: 50,
+                    spread: 60,
+                    origin: { y: 0.7 }
+                });
+
+                this.showFeedback(true, `Correct! +${xpGained} XP`, `Factored form: ${this.currentProblem.answer}`);
+                this.updateStreakDisplay();
+            }
+
+            handleIncorrectAnswer(userAttempt) {
+                this.sound.playIncorrect();
+                this.currentStreak = 0;
+                this.updateStreakDisplay();
+
+                // Shake animation on display
+                const disp = document.getElementById('problemDisplay');
+                disp.classList.add('shake');
+                setTimeout(() => disp.classList.remove('shake'), 400);
+
+                if (this.mode === 'arcade') {
+                    this.lives--;
+                    this.renderLives();
+                    if (this.lives <= 0) {
+                        this.endArcadeMode('No Lives Left!');
+                        return;
+                    }
+                }
+
+                this.showFeedback(false, 'Incorrect Factor!', `The correct answer is: ${this.currentProblem.answer}`);
+            }
+
+            showFeedback(isCorrect, title, detail) {
+                const banner = document.getElementById('feedbackBanner');
+                banner.classList.remove('hidden', 'bg-emerald-950/80', 'border-emerald-500/50', 'text-emerald-200', 'bg-rose-950/80', 'border-rose-500/50', 'text-rose-200');
+
+                if (isCorrect) {
+                    banner.classList.add('bg-emerald-950/80', 'border', 'border-emerald-500/50', 'text-emerald-200');
+                } else {
+                    banner.classList.add('bg-rose-950/80', 'border', 'border-rose-500/50', 'text-rose-200');
+                }
+
+                document.getElementById('feedbackTitle').innerText = title;
+                document.getElementById('feedbackDetail').innerText = detail;
+            }
+
+            updateStreakDisplay() {
+                document.getElementById('streakCounter').innerText = this.currentStreak;
+            }
+
+            nextProblem() {
+                this.sound.playClick();
+                this.loadNextProblem();
+            }
+
+            setInputMode(mode) {
+                this.sound.playClick();
+                this.inputMode = mode;
+
+                const mcqGrid = document.getElementById('mcqOptionsGrid');
+                const typedArea = document.getElementById('typedInputArea');
+                const btnMCQ = document.getElementById('btnModeMCQ');
+                const btnTyped = document.getElementById('btnModeTyped');
+
+                if (mode === 'mcq') {
+                    mcqGrid.classList.remove('hidden');
+                    typedArea.classList.add('hidden');
+                    btnMCQ.className = 'px-3 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30';
+                    btnTyped.className = 'px-3 py-1 rounded-lg bg-slate-800 text-slate-400 hover:text-white border border-slate-700';
+                } else {
+                    mcqGrid.classList.add('hidden');
+                    typedArea.classList.remove('hidden');
+                    btnTyped.className = 'px-3 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30';
+                    btnMCQ.className = 'px-3 py-1 rounded-lg bg-slate-800 text-slate-400 hover:text-white border border-slate-700';
+                }
+            }
+
+            appendSymbol(sym) {
+                this.sound.playClick();
+                const input = document.getElementById('userInput');
+                input.value += sym;
+                input.focus();
+                this.updateMathPreview(input.value);
+            }
+
+            clearInput() {
+                this.sound.playClick();
+                const input = document.getElementById('userInput');
+                input.value = '';
+                this.updateMathPreview('');
+                input.focus();
+            }
+
+            updateMathPreview(val) {
+                const prev = document.getElementById('mathPreview');
+                if (!val.trim()) {
+                    prev.innerText = '...';
+                    return;
+                }
+                prev.innerText = val;
+            }
+
+            submitTypedAnswer() {
+                const val = document.getElementById('userInput').value.trim();
+                if (!val) return;
+                this.checkAnswer(val);
+            }
+
+            triggerHint() {
+                if (this.hintsLeft <= 0) return;
+                this.sound.playClick();
+
+                this.hintsLeft--;
+                document.getElementById('hintCount').innerText = this.hintsLeft;
+
+                const hintBox = document.getElementById('hintBox');
+                document.getElementById('hintText').innerText = this.currentProblem.hint;
+                hintBox.classList.remove('hidden');
+            }
+
+            toggleCheatSheet() {
+                this.sound.playClick();
+                const modal = document.getElementById('cheatSheetModal');
+                modal.classList.toggle('hidden');
+            }
+
+            toggleMute() {
+                this.sound.muted = !this.sound.muted;
+                const icon = document.querySelector('#muteBtn i');
+                if (this.sound.muted) {
+                    icon.className = 'fa-solid fa-volume-xmark text-red-400';
+                } else {
+                    icon.className = 'fa-solid fa-volume-high text-base';
+                }
+            }
+
+            endArcadeMode(reason) {
+                this.clearIntervals();
+                if (this.arcadeScore > this.highScore) {
+                    this.highScore = this.arcadeScore;
+                }
+                this.saveProgress();
+
+                alert(`🎮 Game Over! (${reason})\nFinal Arcade Score: ${this.arcadeScore}\nHigh Score: ${this.highScore}`);
+                this.showHome();
+            }
+
+            saveProgress() {
+                localStorage.setItem('nl_math_xp', this.xp.toString());
+                localStorage.setItem('nl_math_solved', this.totalSolved.toString());
+                localStorage.setItem('nl_math_attempts', this.totalAttempts.toString());
+                localStorage.setItem('nl_math_highscore', this.highScore.toString());
+                localStorage.setItem('nl_math_beststreak', this.bestStreak.toString());
+            }
+        }
+
+        // Initialize Global App Instance on load
+        let app;
+        window.onload = function() {
+            app = new App();
+        };
+    </script>
+</body>
+</html>
+
